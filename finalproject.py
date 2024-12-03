@@ -212,8 +212,7 @@ if max_score == 0:
 print(high_word)
 print(max_score)
 
-# The program so far: Accurately (I hope) finds the highest-scoring play and its
-# associated score.
+# The program so far: Accurately (I hope) finds the highest-scoring play and its associated score.
 # Todo: Blanks, strategic use of s's and blanks, visuals
 
 
