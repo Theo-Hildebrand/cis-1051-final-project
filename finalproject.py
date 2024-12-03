@@ -176,13 +176,6 @@ for a in y:
     if a not in x:
         x = x + [a]       # x is the list of unique permutations of the rack
 
-max_length = 0
-for perm in x:
-    if perm in sortedlist:
-        if len(perm) > max_length:
-            max_length = len(perm)
-
-
 max_score = 0
 for perm in x:
     if perm in sortedlist:
