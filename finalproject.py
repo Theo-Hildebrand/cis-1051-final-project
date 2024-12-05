@@ -141,6 +141,7 @@ def permutate(rack):
 
     permutations = [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, at, au, av, aw, ax, ay, az, ba, bb, bc, bd, be, bf, bg, bh, bi, bj, ca, cb, cc, cd, ce, cf, cg, ch, ci, cj, ck, cl, cm, cn, co, cp, cq, cr, cs, ct, cu, cv, cw, cx, cy, cz, da, db, dc, dd, de, df, dg, dh, di, ea, eb, ec, ed, ee, ef, eg, eh, ei, ej, ek, el, em, en, eo, ep, eq, er, es, et, eu, fa, fb, fc, fd, fe, ff, fg, ga]
     return permutations
+    
 
 def score(word):
     points = 0
@@ -148,9 +149,7 @@ def score(word):
         points = points + scores[c]
     return points
 
-rack = 'aeilnrt'
-
-rack = random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('aeiou')+random.choice('aeiou')+random.choice('aeiou')
+rack = random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('aeiou')+random.choice('aeiou')+random.choice('aeiou')+"?"
 print(rack)
 
 rack = rack.lower()
@@ -160,52 +159,199 @@ if len(rack) != 7:
 
 count = 0
 for c in rack:
-    if c not in "qwertyuiopasdfghjklzxcvbnm":
+    if c not in "qwertyuiopasdfghjklzxcvbnm?":
         count = count + 1
 if count != 0:
     print("Invalid characters. Try again.")
 
-alpha = ''
-racksorted = sorted(rack)
-for c in racksorted:
-    alpha = alpha + c
 
-x = []
-y = permutate(alpha)
-for a in y:
-    if a not in x:
-        x = x + [a]       # x is the list of unique permutations of the rack
+def alphagram(rack):
+    alpha = ''
+    racksorted = sorted(rack)
+    for c in racksorted:
+        alpha = alpha + c
+    if "?" in alpha and "??" not in alpha:
+        alpha = alpha[1:7] + "?"             
+    elif "??" in alpha:
+        alpha = alpha[2:7] + "??"      # Put the blanks at the end - it doesn't make the code more efficient, but it's convention for Scrabble players, so it's what I'm used to
+    return alpha
 
-max_score = 0
-for perm in x:
-    if perm in sortedlist:
-        potential_words = []
-        for num in range(len(wordlist)):
-            if sortedlist[num] == perm:
-                potential_words = potential_words + [wordlist[num]]
-            for word in potential_words:
-                points = 0
-                for c in word:
-                    points = points + scores[c]
-                if len(perm) == 5:
-                    points = points + max(scores[word[0]], scores[word[4]])
-                if len(perm) == 6:
-                    points = points + max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]])
-                if len(perm) == 7:
-                    points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
-                    points = points + 25     # Bingo score (divided by two)
-                if points > max_score:
-                    max_score = points
-                    high_word = word
+def high_letters(word):
+    high_letters = []
+    if len(word) == 5:
+        maxi = max(scores[word[0]], scores[word[4]])
+        for num in [0, 4]:
+            if scores[word[num]] == maxi:
+                high_letters += [word[num], scores[word[num]], num+1]
+    if len(word) == 6:
+        maxi = max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]])
+        for num in [0, 1, 4, 5]:
+            if scores[word[num]] == maxi:
+                high_letters += [word[num], scores[word[num]], num+1]
+    if len(word) == 7:
+        maxi = max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+        for num in [0, 1, 2, 4, 5, 6]:
+            if scores[word[num]] == maxi:
+                high_letters += [word[num], scores[word[num]], num+1]
+    return high_letters
+                   
 
-max_score = max_score * 2
-if max_score == 0:
-    high_word = ''
+def high_word(rack):
+    alpha = alphagram(rack)
+    x = []
+    y = permutate(alpha)
+    for a in y:
+        if a not in x:
+            x = x + [a]       # x is the list of unique permutations of the rack
 
-print(high_word)
-print(max_score)
+    max_score = 0
+    for perm in x:
+        if perm in sortedlist:
+            potential_words = []
+            for num in range(len(wordlist)):
+                if sortedlist[num] == perm:
+                    potential_words = potential_words + [wordlist[num]]
+                for word in potential_words:
+                    points = 0
+                    for c in word:
+                        points = points + scores[c]
+                    if len(word) == 5:
+                        points = points + max(scores[word[0]], scores[word[4]])
+                    if len(word) == 6:
+                        points = points + max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]])
+                    if len(word) == 7:
+                        points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+                        points = points + 25     # Bingo score (divided by two)
+                    if points > max_score:
+                        max_score = points
+                        high_word = word
+                        
+    max_score = max_score * 2
+    if max_score == 0:
+        high_word = ''
+    return [high_word, max_score]
 
-# The program so far: Accurately (I hope) finds the highest-scoring play and its associated score.
-# Todo: Blanks, strategic use of s's and blanks, visuals
+def blank_score(rack, blank_char):                     # The rack, including the blank, along with what the blank is imitating 
+    alpha = alphagram(rack)                            # Alphabetize the rack
+    alpha = alphagram(alpha[0:6] + blank_char)         # Replace the blank with the character in question, then alphabetize it again
+    x = []
+    y = permutate(alpha)
+    for a in y:
+        if a not in x:
+            x = x + [a]
+
+
+    max_score = 0
+    for perm in x:
+        if perm in sortedlist:
+            potential_words = []
+            for num in range(len(wordlist)):
+                if sortedlist[num] == perm:
+                    potential_words = potential_words + [wordlist[num]]
+                for word in potential_words:
+                    points = 0
+                    count = 0
+                    for c in word:
+                        if c == blank_char:
+                            count = count + 1
+                            if count > rack.count(blank_char):   # If more of the imitated tile are used than there are naturals on the rack, a blank must be used, netting zero points.
+                                points = points
+                            else:
+                                points = points + scores[c]    
+                        else:
+                            points = points + scores[c]
+                    if len(word) == 5:
+                        if rack.count(blank_char) > 0:
+                            points = points + max(scores[word[0]], scores[word[4]])
+                        else:
+                            if blank_char == word[0]:
+                                points = points + scores[word[4]]
+                            elif blank_char == word[4]:
+                                points = points + scores[word[0]]
+                            else:
+                                points = points + max(scores[word[0]], scores[word[4]])
+                    if len(word) == 6:
+                        if rack.count(blank_char) > 0:
+                            points = points + max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]])
+                        else:
+                            if blank_char == word[0]:
+                                points = points + max(scores[word[1]], scores[word[4]], scores[word[5]])
+                            elif blank_char == word[1]:
+                                points = points + max(scores[word[0]], scores[word[4]], scores[word[5]])
+                            elif blank_char == word[4]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[5]])
+                            elif blank_char == word[5]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[4]])
+                            else:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]])
+                    if len(word) == 7:
+                        if rack.count(blank_char) > 0:
+                            points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+                        else:
+                            if blank_char == word[0]:
+                                points = points + max(scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+                            elif blank_char == word[1]:
+                                points = points + max(scores[word[0]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+                            elif blank_char == word[2]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[4]], scores[word[5]], scores[word[6]])
+                            elif blank_char == word[4]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[5]], scores[word[6]])
+                            elif blank_char == word[5]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[6]])
+                            elif blank_char == word[6]:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]])
+                            else:
+                                points = points + max(scores[word[0]], scores[word[1]], scores[word[2]], scores[word[4]], scores[word[5]], scores[word[6]])
+                        points = points + 25
+                    if points > max_score:
+                        max_score = points
+                        high_word = word
+                        
+    max_score = max_score * 2
+    if max_score == 0:
+        high_word = ''
+        
+    return [high_word, max_score]
+                            
+    
+                        
+
+
+def high_word_blank(rack):
+    alpha = alphagram(rack)
+    poss = []
+    for char in "qwertyuiopasdfghjklzxcvbnm":
+        poss = poss + [blank_score(alpha, char)]
+    
+    max_poss = 0
+    for p in poss:
+        if p[1] > max_poss:
+            high_poss = p[0]
+            max_poss = p[1]
+            
+    return [high_poss, max_poss] 
+
+
+        
+if "?" in rack:
+    result = high_word_blank(rack)
+    print(result[0])
+    print(result[1])
+else:
+    result = high_word(rack)
+    print(result[0])
+    print(result[1])
+
+
+
+
+
+
+
+
+
+# The program so far: Accurately (I hope) finds the highest-scoring play and its
+# associated score. Can incorporate a single blank with appropriate score.
+# Todo: Blanks, strategic use of s's and blanks, visuals.
 
 
