@@ -244,12 +244,6 @@ def score(word):
         points = points + scores[c]
     return points
 
-blank = 1
-if blank == 0:
-    rack = random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('aeiou')+random.choice('aeiou')+random.choice('aeiou')
-elif blank == 1:
-    rack = random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('aeiou')+random.choice('aeiou')+random.choice('aeiou')+"?"
-
 def alphagram(rack):
     alpha = ''
     racksorted = sorted(rack)
@@ -899,6 +893,5 @@ pygame.quit()
 # (currently 10 and 30 points respectively). Adding the potential of another blank would be a bit of a hassle - and, with my coding style
 # (that is to say, my utter lack of efficiency), doing so would probably increase the runtime to a comical degree, so this program can
 # only handle a single blank. Accurately works out where a word should be situated to maximize score - it's a bloated mess, but it works!
-# Todo: Change visually the blank character used, make sure the correct tile is marked, error sound alteration
 
 
