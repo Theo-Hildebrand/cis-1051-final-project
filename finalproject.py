@@ -1,3 +1,4 @@
+import pygame
 import random
 
 scores = {'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10}
@@ -249,21 +250,6 @@ if blank == 0:
 elif blank == 1:
     rack = random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('qwrtypsdfghjklzxcvbnm')+random.choice('aeiou')+random.choice('aeiou')+random.choice('aeiou')+"?"
 
-print(rack)
-
-rack = rack.lower()
-
-if len(rack) != 7:
-    print("Invalid rack length. Try again.")
-
-count = 0
-for c in rack:
-    if c not in "qwertyuiopasdfghjklzxcvbnm?":
-        count = count + 1
-if count != 0:
-    print("Invalid characters. Try again.")
-
-
 def alphagram(rack):
     alpha = ''
     racksorted = sorted(rack)
@@ -277,17 +263,17 @@ def alphagram(rack):
 
 def position(num):
     if num == 0:
-        return 2
+        return 3
     if num == 1:
-        return 1
+        return 2
     if num == 2:
-        return 0
+        return 1
     if num == 4:
-        return 6
+        return 7
     if num == 5:
-        return 5
+        return 6
     if num == 6:
-        return 4     # Takes the position of the highest-scoring tile that can hit the double-letter square and returns what the starting location should be in order for that tile to lie on the square
+        return 5     # Takes the position of the highest-scoring tile that can hit the double-letter square and returns what the starting location should be in order for that tile to lie on the square
 
 def doubled_letter(word):
     if len(word) < 5:
@@ -297,20 +283,20 @@ def doubled_letter(word):
         for num in [0, 4]:
             if scores[word[num]] > maxi:
                 maxi = scores[word[num]]
-                high_letter = [word[num], scores[word[num]], position(num)] 
+                high_letter = [word[num], position(num)] 
     if len(word) == 6:
         maxi = 0
         for num in [0, 1, 4, 5]:
             if scores[word[num]] > maxi:
                 maxi = scores[word[num]]
-                high_letter = [word[num], scores[word[num]], position(num)] 
+                high_letter = [word[num], position(num)] 
     if len(word) == 7:
         maxi = 0
         for num in [0, 1, 2, 4, 5, 6]:
             if scores[word[num]] > maxi:
                 maxi = scores[word[num]]
-                high_letter = [word[num], scores[word[num]], position(num)]
-    return high_letter
+                high_letter = [word[num], position(num)]
+    return high_letter                                     # Returns the high letter, along with position
 
 def doubled_letter_blank(word, blank_char):
     new_scores = {}
@@ -321,7 +307,7 @@ def doubled_letter_blank(word, blank_char):
     if count > 1:                               # If the word has more than one of the imitated tile, that means there is at least one natural (assuming only one blank), so you don't have to worry about doubling the blank 
         new_scores = scores
     else:
-        for c in "qwertyuiopasdghjklzxcvbnm":
+        for c in "qwertyuiopasdfghjklzxcvbnm":
             if c == blank_char:
                 new_scores[c] = 0
             else:
@@ -333,20 +319,20 @@ def doubled_letter_blank(word, blank_char):
         for num in [0, 4]:
             if new_scores[word[num]] > maxi:
                 maxi = new_scores[word[num]]
-                high_letter = [word[num], new_scores[word[num]], position(num)] 
+                high_letter = [word[num], position(num)] 
     if len(word) == 6:
         maxi = 0
         for num in [0, 1, 4, 5]:
             if new_scores[word[num]] > maxi:
                 maxi = new_scores[word[num]]
-                high_letter = [word[num], new_scores[word[num]], position(num)] 
+                high_letter = [word[num], position(num)] 
     if len(word) == 7:
         maxi = 0
         for num in [0, 1, 2, 4, 5, 6]:
             if new_scores[word[num]] > maxi:
                 maxi = new_scores[word[num]]
-                high_letter = [word[num], new_scores[word[num]], position(num)]
-    return high_letter
+                high_letter = [word[num], position(num)]
+    return high_letter                                         # Returns the high letter, along with position
         
         
 
@@ -495,42 +481,415 @@ def high_word_blank(rack):
     return [high_poss, max_poss, high_char]
 
 
-       
-if "?" in rack:
-    alpha = alphagram(rack)
-    alpha_blankless = alpha[0:6]
-    high_blank = high_word_blank(alpha)
-    high_blankless = high_word(alpha_blankless)
-    if "s" in rack:
-        alpha_sless = alpha_blankless[0:alpha_blankless.index("s")] + alpha_blankless[(alpha_blankless.index("s") + 1):]   # Removes one s from the rack
-        high_sless = high_word(alpha_sless)
-        if high_blankless[1] < high_sless[1] + 10:   # That is, if you cannot score ten more points using the s than not
-            high_blankless = high_sless    
-    if high_blank[1] >= high_blankless[1] + 30:      # That is, if you can score thirty more points using the blank than not
-        result = high_blank
-    else:
-        result = high_blankless  
-    print(result[0])
-    print(result[1])
-    if result == high_blank:
-        print(result[2])
-        if len(result[0]) >= 5:
-            print(doubled_letter_blank(result[0], result[2]))
-else:
-    if "s" in rack:  
-        rack_sless = rack[0:rack.index("s")] + rack[(rack.index("s") + 1):]
-        high_s = high_word(rack)
-        high_sless = high_word(rack_sless)
-        if high_s[1] >= high_sless[1] + 10:          # That is, if you can score ten more points using the s than not
-            result = high_s
+def the_big_one(rack):
+    if "?" in rack:
+        alpha = alphagram(rack)
+        alpha_blankless = alpha[0:6]
+        high_blank = high_word_blank(alpha)
+        high_blankless = high_word(alpha_blankless)
+        if "s" in rack:
+            alpha_sless = alpha_blankless[0:alpha_blankless.index("s")] + alpha_blankless[(alpha_blankless.index("s") + 1):]   # Removes one s from the rack
+            high_sless = high_word(alpha_sless)
+            if high_blankless[1] < high_sless[1] + 10:   # That is, if you cannot score ten more points using the s than not
+                high_blankless = high_sless    
+        if high_blank[1] >= high_blankless[1] + 30:      # That is, if you can score thirty more points using the blank than not
+            result = high_blank
         else:
-            result = high_sless
+            result = high_blankless
+
+        if result == high_blank:
+            if len(result[0]) >= 5:
+                x = doubled_letter_blank(result[0], result[2])
+                result = result + [x[1]]
+            else:
+                result = result + [6]    # Arbitrarily chosen position value if double-letter cannot be reached
+            result = [result[0], result[1], result[3], result[2]]
+        else:
+            if len(result[0]) >= 5:
+                x = doubled_letter(result[0])
+                result = result + [x[1], "0"]    # "0" added so result[3] can be referred to even if blank not used
+            else:
+                result = result + [6, "0"]  
+        return result
+
     else:
-        result = high_word(rack)
-    print(result[0])
-    print(result[1])
-    if len(result[0]) >= 5:
-        print(doubled_letter(result[0]))
+        if "s" in rack:  
+            rack_sless = rack[0:rack.index("s")] + rack[(rack.index("s") + 1):]
+            high_s = high_word(rack)
+            high_sless = high_word(rack_sless)
+            if high_s[1] >= high_sless[1] + 10:          # That is, if you can score ten more points using the s than not
+                result = high_s
+            else:
+                result = high_sless
+        else:
+            result = high_word(rack)
+        if len(result[0]) >= 5:
+            x = doubled_letter(result[0])
+            result = result + [x[1], "0"]          
+        else:
+            result = result + [6, "0"]
+
+        return result
+
+
+############################################### PYGAME INCOMING ######################################################
+
+
+pygame.init()
+screen = pygame.display.set_mode((1280, 720))
+clock = pygame.time.Clock()
+running = True
+
+board = pygame.image.load("ScrabbleBoard.png")
+input_box = pygame.image.load("input_box.png")
+a_ = pygame.image.load("A__.png")
+b_ = pygame.image.load("B__.png")
+c_ = pygame.image.load("C__.png")
+d_ = pygame.image.load("D__.png")
+e_ = pygame.image.load("E__.png")
+f_ = pygame.image.load("F__.png")
+g_ = pygame.image.load("G__.png")
+h_ = pygame.image.load("H__.png")
+i_ = pygame.image.load("I__.png")
+j_ = pygame.image.load("J__.png")
+k_ = pygame.image.load("K__.png")
+l_ = pygame.image.load("L__.png")
+m_ = pygame.image.load("M__.png")
+n_ = pygame.image.load("N__.png")
+o_ = pygame.image.load("O__.png")
+p_ = pygame.image.load("P__.png")
+q_ = pygame.image.load("Q__.png")
+r_ = pygame.image.load("R__.png")
+s_ = pygame.image.load("S__.png")
+t_ = pygame.image.load("T__.png")
+u_ = pygame.image.load("U__.png")
+v_ = pygame.image.load("V__.png")
+w_ = pygame.image.load("W__.png")
+x_ = pygame.image.load("X__.png")
+y_ = pygame.image.load("Y__.png")
+z_ = pygame.image.load("Z__.png")
+__ = pygame.image.load("___.png")
+_1 = pygame.image.load("1_.png")
+_2 = pygame.image.load("2_.png")
+_3 = pygame.image.load("3_.png")
+_4 = pygame.image.load("4_.png")
+_5 = pygame.image.load("5_.png")
+_6 = pygame.image.load("6_.png")
+_7 = pygame.image.load("7_.png")
+_8 = pygame.image.load("8_.png")
+_9 = pygame.image.load("9_.png")
+_0 = pygame.image.load("0_.png")
+zero = pygame.image.load("redzero.png")
+
+def print_a(loc):
+    screen.blit(a_, loc)
+def print_b(loc):
+    screen.blit(b_, loc)
+def print_c(loc):
+    screen.blit(c_, loc)
+def print_d(loc):
+    screen.blit(d_, loc)
+def print_e(loc):
+    screen.blit(e_, loc)
+def print_f(loc):
+    screen.blit(f_, loc)
+def print_g(loc):
+    screen.blit(g_, loc)
+def print_h(loc):
+    screen.blit(h_, loc)
+def print_i(loc):
+    screen.blit(i_, loc)
+def print_j(loc):
+    screen.blit(j_, loc)
+def print_k(loc):
+    screen.blit(k_, loc)
+def print_l(loc):
+    screen.blit(l_, loc)
+def print_m(loc):
+    screen.blit(m_, loc)
+def print_n(loc):
+    screen.blit(n_, loc)
+def print_o(loc):
+    screen.blit(o_, loc)
+def print_p(loc):
+    screen.blit(p_, loc)
+def print_q(loc):
+    screen.blit(q_, loc)
+def print_r(loc):
+    screen.blit(r_, loc)
+def print_s(loc):
+    screen.blit(s_, loc)
+def print_t(loc):
+    screen.blit(t_, loc)
+def print_u(loc):
+    screen.blit(u_, loc)
+def print_v(loc):
+    screen.blit(v_, loc)
+def print_w(loc):
+    screen.blit(w_, loc)
+def print_x(loc):
+    screen.blit(x_, loc)
+def print_y(loc):
+    screen.blit(y_, loc)
+def print_z(loc):
+    screen.blit(z_, loc)
+def print_1(loc):
+    screen.blit(_1, loc)
+def print_2(loc):
+    screen.blit(_2, loc)
+def print_3(loc):
+    screen.blit(_3, loc)
+def print_4(loc):
+    screen.blit(_4, loc)
+def print_5(loc):
+    screen.blit(_5, loc)
+def print_6(loc):
+    screen.blit(_6, loc)
+def print_7(loc):
+    screen.blit(_7, loc)
+def print_8(loc):
+    screen.blit(_8, loc)
+def print_9(loc):
+    screen.blit(_9, loc)
+def print_0(loc):
+    screen.blit(_0, loc)
+
+loc = [0, 0]
+print_dict = {"a": print_a, "b": print_b, "c": print_c, "d": print_d, "e": print_e, "f": print_f, "g": print_g, "h": print_h, "i": print_i, "j": print_j, "k": print_k, "l": print_l, "m": print_m, "n": print_n, "o": print_o, "p": print_p, "q": print_q, "r": print_r, "s": print_s, "t": print_t, "u": print_u, "v": print_v, "w": print_w, "x": print_x, "y": print_y, "z": print_z, "1": print_1, "2": print_2, "3": print_3, "4": print_4, "5": print_5, "6": print_6, "7": print_7, "8": print_8, "9": print_9, "0": print_0}
+
+count = 0
+tiles_placed = 0
+num_blanks = 0
+word_played = 0
+blank_char_amt = 0
+rack = ""
+
+screen.blit(board, [0, 0])
+screen.blit(input_box, [463, 576])
+
+
+while running:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYUP:
+            count = 0
+        if event.type == pygame.KEYDOWN:
+            if word_played == 1:
+                screen.blit(board, [0,0])
+                screen.blit(input_box, [463, 576])
+                rack = ""
+                tiles_placed = 0
+                word_played = 0
+                num_blanks = 0
+                
+
+    keys = pygame.key.get_pressed()
+
+    if count == 0:
+        if len(rack) < 7:
+            if keys[pygame.K_a]:
+                print_a([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "a"
+            elif keys[pygame.K_b]:
+                print_b([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "b"
+            elif keys[pygame.K_c]:
+                print_c([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "c"
+            elif keys[pygame.K_d]:
+                print_d([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "d"
+            elif keys[pygame.K_e]:
+                print_e([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "e"
+            elif keys[pygame.K_f]:
+                print_f([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "f"
+            elif keys[pygame.K_g]:
+                print_g([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "g"
+            elif keys[pygame.K_h]:
+                print_h([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "h"
+            elif keys[pygame.K_i]:
+                print_i([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "i"
+            elif keys[pygame.K_j]:
+                print_j([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "j"
+            elif keys[pygame.K_k]:
+                print_k([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "k"
+            elif keys[pygame.K_l]:
+                print_l([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "l"
+            elif keys[pygame.K_m]:
+                print_m([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "m"
+            elif keys[pygame.K_n]:
+                print_n([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "n"
+            elif keys[pygame.K_o]:
+                print_o([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "o"
+            elif keys[pygame.K_p]:
+                print_p([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "p"
+            elif keys[pygame.K_q]:
+                print_q([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "q"
+            elif keys[pygame.K_r]:
+                print_r([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "r"
+            elif keys[pygame.K_s]:
+                print_s([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "s"
+            elif keys[pygame.K_t]:
+                print_t([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "t"
+            elif keys[pygame.K_u]:
+                print_u([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "u"
+            elif keys[pygame.K_v]:
+                print_v([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "v"
+            elif keys[pygame.K_w]:
+                print_w([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "w"
+            elif keys[pygame.K_x]:
+                print_x([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "x"
+            elif keys[pygame.K_y]:
+                print_y([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "y"
+            elif keys[pygame.K_z]:
+                print_z([474 + (tiles_placed * 48), 578])
+                tiles_placed += 1
+                count = 1
+                rack += "z"
+            elif keys[pygame.K_SPACE] and num_blanks == 0:
+                screen.blit(__, [474 + (tiles_placed * 48), 578])
+                tiles_placed +=1
+                count = 1
+                num_blanks = 1
+                rack += "?"
+        if keys[pygame.K_BACKSPACE]:
+            if tiles_placed > 0:
+                screen.blit(board, [474 + (48*(tiles_placed - 1)), 578], pygame.Rect(474 + (48*(tiles_placed - 1)), 578, 44, 44))
+                screen.blit(input_box, [474 + (48*(tiles_placed - 1)), 578], pygame.Rect(10, 0, 44, 44))
+                tiles_placed -= 1
+                count = 1
+                rack = rack[0:len(rack) - 1]
+                if "?" not in rack:
+                    num_blanks = 0
+        if keys[pygame.K_RETURN]:
+            count = 1
+            if len(rack) == 7:
+                screen.blit(board, [0,0])
+                screen.blit(input_box, [463, 576])
+                tiles_placed = 0
+                result = the_big_one(rack)
+                blank_char_amt = result[0].count(result[3])
+                if blank_char_amt == 0:
+                    for c in result[0]:     
+                        loc = [282 + (48*(tiles_placed + result[2])), 338]
+                        print_dict[c](loc)
+                        tiles_placed += 1          # Place the tiles corresponding to the letters of the word on the board
+                else:
+                    pos_order = []
+                    for i in range(len(result[0])):
+                        pos_order += [i]
+                    if len(result[0]) >= 5:
+                        if result[2] in [1, 2, 3]:
+                            doubled_letter_pos = pos_order.index(3 - result[2])
+                            del pos_order[doubled_letter_pos]
+                            pos_order = [doubled_letter_pos] + pos_order   # Move the position that falls on the double letter tile to the first in the queue
+                        elif result[2] in [5, 6, 7]:
+                            doubled_letter_pos = pos_order.index(11 - result[2])
+                            del pos_order[doubled_letter_pos]
+                            pos_order = [doubled_letter_pos] + pos_order
+                    blank_char_count = 0
+                    for pos in pos_order:
+                        c = result[0][pos]
+                        loc = [282 + (48*(pos + result[2])), 338]
+                        print_dict[c](loc)
+                        if c == result[3]:
+                            blank_char_count += 1
+                            if blank_char_count == blank_char_amt:
+                                screen.blit(zero, [loc[0] + 28, loc[1] + 25])
+                                input_box.set_alpha(50)
+                                screen.blit(input_box, loc, pygame.Rect(10, 0, 44, 44))
+                                input_box.set_alpha(255)                                   # Visually marks the blank tile with a score of zero and a slight darkening
+
+                    # Alright, this whole song and dance is just to ensure that, if the blank is imitating a tile that you also have a natural copy of, and that letter
+                    # falls on the double letter score in order to maximize score, it's the natural, and not the blank, that is shown to fall on the double letter score.
+                    # It does this by placing the tiles down in a certain order, with the tile that falls on the double letter score being placed first, and marking as the
+                    # blank the copy of the imitated tile that comes down last. (At least, that's the idea. It works with my test words, but something may well have slipped
+                    # through the cracks)                           
+                        
+                word_played = 1
+                loc[0] += 50
+                loc[1] -= 21
+                for digit in str(result[1]):
+                    print_dict[digit](loc)
+                    loc[0] += 12                  # Place the digits of the score         
+
+
+    pygame.display.flip()
+
+pygame.quit()
 
 
 
@@ -538,9 +897,8 @@ else:
 # The program so far: Accurately (I hope) finds the highest-scoring play and its associated score. Can incorporate a single blank with
 # appropriate score, and refrains from using an s (unless the rack has multiple s's) or a blank unless the score gain is high enough
 # (currently 10 and 30 points respectively). Adding the potential of another blank would be a bit of a hassle - and, with my coding style
-# (that is to say, my utter lack of efficiency), doing so would probably increase the runtime to a comical degree, so I might hold off
-# on that and do it at the end if I have time. Accurately works out where a word should be situated to maximize score - all that should
-# be left are the visuals.
-# Todo: Visuals, second blank functionality (if the stars align).
+# (that is to say, my utter lack of efficiency), doing so would probably increase the runtime to a comical degree, so this program can
+# only handle a single blank. Accurately works out where a word should be situated to maximize score - it's a bloated mess, but it works!
+# Todo: Change visually the blank character used, make sure the correct tile is marked, error sound alteration
 
 
